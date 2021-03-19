@@ -230,8 +230,11 @@ qed
 
 (* 1 mark *)
 theorem sum_parts_eq:
-  "undefined"
-oops
+  "\<Squnion> {x} x"
+proof (unfold sumregions_def)
+  show "(\<forall>y\<in>{x}. y \<sqsubseteq> x) \<and> (\<forall>y. y \<sqsubseteq> x \<longrightarrow>(\<exists>z\<in>{x}. y \<frown> z))"
+    by blast
+qed
 
 (* 2 marks *)
 theorem sum_relation_is_same':

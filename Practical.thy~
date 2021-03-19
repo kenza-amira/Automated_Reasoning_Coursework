@@ -205,8 +205,11 @@ qed
 
 (* 3 marks *)
 theorem overlaps_refl:
-  "undefined"
-  oops
+  "x \<frown> x\<longrightarrow>  \<Squnion> \<alpha> x \<and> \<Squnion> \<alpha> y \<and> x = y"
+proof (unfold overlaps_def)
+  show "(\<exists>z. z \<sqsubseteq> x \<and> z \<sqsubseteq> x) \<longrightarrow> \<Squnion> \<alpha> x \<and> \<Squnion> \<alpha> y \<and> x = y"
+    using sumregions_def A2' by blast
+qed
 
 (* 1 mark *)
 theorem all_has_partof:
@@ -227,7 +230,10 @@ qed
 
 (* 1 mark *)
 theorem sum_parts_eq:
-  "undefined"
+  "\<Squnion> {x} x"
+proof (unfold sumregions_def)
+  show "(\<forall>y\<in>{x}. y \<sqsubseteq> x) \<and> (\<forall>y. y \<sqsubseteq> x \<longrightarrow>(\<exists>z\<in>{x}. y \<frown> z))"
+    by blast
 oops
 
 (* 2 marks *)
