@@ -206,18 +206,23 @@ qed
 (* 3 marks *)
 theorem overlaps_refl:
   "undefined"
-oops
-
+  oops
 (* 1 mark *)
 theorem all_has_partof:
-  "undefined"
-oops
+  "\<forall>r. \<exists>x. x \<sqsubset> r"
+proof (unfold properpartof_def)
+  show "\<forall>r. \<exists>x. x \<sqsubseteq> r \<and> x \<noteq> r"
+    using properpartof_def by blast
+qed
 
 (* 2 marks *)
 theorem partof_overlaps:
-  assumes "undefined"
-  shows "undefined"
-oops
+  assumes "x \<sqsubset> y"
+  shows " \<forall>r. r \<sqsubset> x \<longrightarrow> r \<sqsubset> y"
+proof (unfold properpartof_def)
+  show " \<forall>r. r \<sqsubseteq> x \<and> r \<noteq> x \<longrightarrow> r \<sqsubseteq> y \<and> r \<noteq> y"
+  using A1 properpartof_def by blast
+qed
 
 (* 1 mark *)
 theorem sum_parts_eq:
@@ -229,8 +234,12 @@ theorem sum_relation_is_same':
   assumes "\<And>c. r y c \<Longrightarrow> c \<sqsubseteq> y"
       and "\<And>f. y \<frown> f \<Longrightarrow> \<exists>g. r y g \<and> g \<frown> f"
       and "\<Squnion> {y} x"
-  shows "\<Squnion> {k. r y k} x"
-oops
+    shows "\<Squnion> {k. r y k} x"
+proof (unfold sumregions_def)
+  show "(\<forall>y\<in>Collect (r y).y \<sqsubseteq> x) \<and> (\<forall>ya. ya \<sqsubseteq> x \<longrightarrow> (\<exists>z\<in>Collect (r y). ya \<frown> z))"
+    using sumregions_def by blast
+qed
+
 
 (* 1 mark *)
 theorem overlap_has_partof_overlap:
