@@ -234,7 +234,7 @@ theorem sum_parts_eq:
 proof (unfold sumregions_def)
   show "(\<forall>y\<in>{x}. y \<sqsubseteq> x) \<and> (\<forall>y. y \<sqsubseteq> x \<longrightarrow>(\<exists>z\<in>{x}. y \<frown> z))"
     by blast
-oops
+qed
 
 (* 2 marks *)
 theorem sum_relation_is_same':
@@ -250,8 +250,9 @@ qed
 
 (* 1 mark *)
 theorem overlap_has_partof_overlap:
-  assumes "undefined"
-  shows "undefined"
+  assumes "e \<frown> f"
+  shows "\<exists>r. r \<sqsubseteq> e \<and> r  \<frown> f"
+proof (unfold overlaps_def)
 oops
 
 (* 1 marks *)

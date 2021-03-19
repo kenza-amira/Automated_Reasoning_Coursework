@@ -250,8 +250,11 @@ qed
 
 (* 1 mark *)
 theorem overlap_has_partof_overlap:
-  assumes "undefined"
-  shows "undefined"
+  assumes "e \<frown> f"
+  shows "\<exists>r. r \<sqsubseteq> e \<and> r  \<frown> f"
+proof (unfold overlaps_def)
+  show "\<exists>r. r \<sqsubseteq> e \<and> (\<exists>z. z \<sqsubseteq> r \<and> z \<sqsubseteq> f)"
+    using overlaps_def by blast
 oops
 
 (* 1 marks *)
