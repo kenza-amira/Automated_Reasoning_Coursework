@@ -197,7 +197,7 @@ theorem overlaps_sym:
 
 (* 1 mark *)
 theorem in_sum_set_partof:
-  "x \<in> \<alpha>  \<longrightarrow>  \<Squnion> \<alpha> x "
+  "undefined"
 oops
 
 (* 3 marks *)
