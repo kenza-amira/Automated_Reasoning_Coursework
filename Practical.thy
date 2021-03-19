@@ -198,7 +198,10 @@ theorem overlaps_sym:
 (* 1 mark *)
 theorem in_sum_set_partof:
   "x \<in> \<alpha>  \<longrightarrow>  \<Squnion> \<alpha> x "
-oops
+proof (unfold sumregions_def)
+  show  "x \<in> \<alpha> \<longrightarrow> (\<forall>y\<in>\<alpha>. y \<sqsubseteq> x) \<and> (\<forall>y. y \<sqsubseteq> x \<longrightarrow>(\<exists>z\<in>\<alpha>. y \<frown> z))"
+    using sumregions_def by blast
+qed
 
 (* 3 marks *)
 theorem overlaps_refl:
