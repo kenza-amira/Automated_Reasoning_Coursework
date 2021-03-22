@@ -57,7 +57,7 @@ lemma
 
 
 (* 2 marks *)
-lemma
+lemma a:
   "(\<forall>x. P x) \<longrightarrow> \<not> (\<exists>x. \<not> P x)" 
   apply (rule impI)
   apply (rule notI)
@@ -119,22 +119,14 @@ lemma ccontr:
 (* 3 marks *)
 lemma
   "(\<not> (\<forall>x. P x \<or> R x)) = (\<exists>x. \<not> P x \<and> \<not> R x)"
-  apply (rule iffI)
-   apply (rule classical)
-   apply (erule notE)+
-   apply (rule exI)
-   apply (rule conjI)
-    apply (rule notI)
-  apply assumption
-  apply (rule ccontr)
 oops
 
 (* 3 marks *)
 
-lemma     
+lemma b:    
   "(\<exists>x. P x \<or> R x) = (\<not>((\<forall>x. \<not> P x) \<and> \<not> (\<exists>x. R x)))"
   apply (rule iffI)
-  apply (rule notI)
+   apply (rule notI)
   apply (erule exE)
   apply (erule conjE)
   apply (erule notE)+
@@ -143,6 +135,10 @@ lemma
   apply (erule allE)
   apply (erule notE)
   apply assumption+
+  oops
+
+lemma    
+  "(\<exists>x. P x \<or> R x) = (\<not>((\<forall>x. \<not> P x) \<and> \<not> (\<exists>x. R x)))"
   oops
 section \<open>Part 2.1\<close>
 
@@ -200,13 +196,13 @@ qed
 theorem overlaps_refl:
   "a \<frown> a"
 proof -
-  have "{a} \<noteq> {}" by auto
-  then  have "(\<exists>x. \<Squnion> {a} x)" using A2 by auto
+  have "{a} \<noteq> {}" by simp
+  then  have "(\<exists>x. \<Squnion> {a} x)" using A2 by simp
   then obtain x where "\<Squnion> {a} x" by blast
   then have s: "(\<forall>y \<in> {a}. y \<sqsubseteq> x) \<and> (\<forall>y. y \<sqsubseteq> x  \<longrightarrow> (\<exists>z \<in> {a}. y \<frown> z))"
-    using sumregions_def by blast
-  then have "a \<sqsubseteq> x" by blast
-  then show  "a \<frown> a" using s by blast
+    using sumregions_def by simp
+  then have "a \<sqsubseteq> x" by simp
+  then show  "a \<frown> a" using s by simp
 qed
 
 thm overlaps_def
@@ -219,7 +215,7 @@ proof
   then have "\<exists>z. z \<sqsubseteq> r  \<and> z \<sqsubseteq> r" using overlaps_def by blast
   then obtain z where "z \<sqsubseteq> r  \<and> z \<sqsubseteq> r" by blast
   then have "z \<sqsubseteq> r" by simp
-  then show "\<exists>x. x \<sqsubseteq> r" by blast
+  then show "\<exists>x. x \<sqsubseteq> r"  by blast
 qed
 
 (* 2 marks *)
@@ -245,26 +241,24 @@ theorem sum_relation_is_same':
     shows "\<Squnion> {k. r y k} x"
 proof (unfold sumregions_def, safe)
   fix ya
-  have "y \<sqsubseteq> x" 
+  have  "y \<sqsubseteq> x" 
     using c sumregions_def by blast
-  then show "r y ya \<Longrightarrow> ya \<sqsubseteq> x" 
+  then show  "r y ya \<Longrightarrow> ya \<sqsubseteq> x"
     using a c A1 by blast
-  have "y \<frown> y" using overlaps_refl by blast
-  then have "\<exists>g. r y g \<and> g \<frown> x" by blast
-  then obtain g where "r y g \<and> g \<frown> x" by blast
-  show "\<exists>z\<in>{k. r y k}. ya \<frown> z"
-  oops
-
+  then show "\<And>ya. ya \<sqsubseteq> x \<Longrightarrow>\<exists>z\<in>Collect (r y). ya \<frown> z"
+  using b c overlaps_sym sumregions_def by auto
+qed
 
 (* 1 mark *)
 theorem overlap_has_partof_overlap:
   assumes a: "e \<frown> f"
-and b : "e = r"
-and c : "r \<sqsubseteq> e"
-  shows "e \<sqsubseteq> e \<and> e \<frown> f"
-proof (unfold overlaps_def, rule conjI)
-  show "e \<sqsubseteq> e" using b c by simp
-  show "\<exists>z. z \<sqsubseteq> e \<and> z \<sqsubseteq> f" using overlaps_def a by simp
+  shows "\<exists>r. r \<sqsubseteq> e \<and> r \<frown> f"
+proof -
+  have "e \<frown> e" using overlaps_refl by simp
+  then have "\<exists>z. z \<sqsubseteq> e  \<and> z \<sqsubseteq> e" using overlaps_def by simp
+  then obtain z where "z \<sqsubseteq> e  \<and> z \<sqsubseteq> e" by blast
+  show "\<exists>r. r \<sqsubseteq> e \<and> r \<frown> f"
+  using all_has_partof assms overlaps_def partof_overlaps by blast
 qed
 
 (* 1 marks *)
@@ -275,7 +269,7 @@ oops
 
 (* 5 marks *)
 theorem both_partof_eq:
-  assumes "x = y"
+  assumes "undefined"
   shows "undefined"
 oops
 
@@ -287,9 +281,9 @@ oops
 
 (* 2 marks *)
 theorem sum_one_is_self:
-  assumes a: "\<Squnion> {x} y"
-  shows "\<Squnion> {x} x"
-proof (unfold sumregions_def)
+ "\<Squnion> {x} x"
+proof (unfold sumregions_def, safe)
+  fix y
 oops
 
 (* 2 marks *)
@@ -299,8 +293,10 @@ oops
 
 (* 4 marks *)
 theorem proper_have_nonoverlapping_proper:
-  assumes "s \<sqsubset> r"
-  shows "\<exists>g. g\<sqsubset>r \<and> \<not> (g \<frown> s)"
+  assumes a: "s \<sqsubset> r"
+  shows "\<exists>g. g \<sqsubset> r \<and> (g \<asymp> s)"
+proof (unfold disjoint_def)
+
 oops
 
 (* 1 mark *)
