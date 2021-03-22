@@ -205,7 +205,6 @@ proof -
   then show  "a \<frown> a" using s by simp
 qed
 
-thm overlaps_def
 (* 1 mark *)
 theorem all_has_partof:
    "\<forall>r. \<exists>x. x \<sqsubseteq> r"
@@ -225,13 +224,16 @@ theorem partof_overlaps:
   shows "r \<sqsubseteq> y \<and> x \<frown> y"
 proof (unfold overlaps_def, rule conjI)
   show "r \<sqsubseteq> y" using a b A1 by blast
-  then show "\<exists>z. z \<sqsubseteq> x \<and> z \<sqsubseteq> y" using overlaps_def a b by blast
+  then show "\<exists>z. z \<sqsubseteq> x \<and> z \<sqsubseteq> y" using overlaps_def a by blast
 qed
 
 (* 1 mark *)
 theorem sum_parts_eq:
-  "\<forall>x. \<Squnion> {x} x"
-  oops
+"\<Squnion> {r. r \<sqsubseteq> x } x"
+proof (unfold sumregions_def)
+  show "(\<forall>y\<in>{r. r \<sqsubseteq> x}. y \<sqsubseteq> x) \<and>(\<forall>y. y \<sqsubseteq> x \<longrightarrow> (\<exists>z \<in>{r. r \<sqsubseteq> x}. y \<frown> z))"
+  using overlaps_refl by auto
+qed
 
 (* 2 marks *)
 theorem sum_relation_is_same':
@@ -282,8 +284,10 @@ oops
 (* 2 marks *)
 theorem sum_one_is_self:
  "\<Squnion> {x} x"
-proof (unfold sumregions_def, safe)
-  fix y
+proof -  
+  have "{x} \<noteq> {}" by simp
+  then have "\<exists>y. \<Squnion> {x} y" using A2 by simp
+  then obtain y where "\<Squnion> {x} y" by blast
 oops
 
 (* 2 marks *)
