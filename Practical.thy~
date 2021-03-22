@@ -197,63 +197,51 @@ theorem overlaps_sym:
 
 (* 1 mark *)
 theorem in_sum_set_partof:
-  "x \<in> \<alpha>  \<longrightarrow>  \<Squnion> \<alpha> x "
+  "x \<in> \<alpha> \<and> \<Squnion> \<alpha> y  \<longrightarrow>  x \<sqsubseteq> y "
 proof (unfold sumregions_def)
-  show  "x \<in> \<alpha> \<longrightarrow> (\<forall>y\<in>\<alpha>. y \<sqsubseteq> x) \<and> (\<forall>y. y \<sqsubseteq> x \<longrightarrow>(\<exists>z\<in>\<alpha>. y \<frown> z))"
-    using sumregions_def by blast
+  show  " x \<in> \<alpha> \<and> (\<forall>ya\<in>\<alpha>. ya \<sqsubseteq> y) \<and> (\<forall>ya. ya \<sqsubseteq> y \<longrightarrow>(\<exists>z\<in>\<alpha>. ya \<frown> z)) \<longrightarrow>x \<sqsubseteq> y"
+    using sumregions_def by simp
 qed
 
 (* 3 marks *)
 theorem overlaps_refl:
-  "x \<frown> x\<longrightarrow>  \<Squnion> \<alpha> x \<and> \<Squnion> \<alpha> y \<and> x = y"
+  "a \<frown> a"
 proof (unfold overlaps_def)
-  show "(\<exists>z. z \<sqsubseteq> x \<and> z \<sqsubseteq> x) \<longrightarrow> \<Squnion> \<alpha> x \<and> \<Squnion> \<alpha> y \<and> x = y"
-    using sumregions_def A2' by blast
-qed
+  show " \<exists>z. z \<sqsubseteq> a \<and>
+        z \<sqsubseteq> a"
+  oops
 
 (* 1 mark *)
 theorem all_has_partof:
-  "\<forall>r. \<exists>x. x \<sqsubset> r"
-proof (unfold properpartof_def)
-  show "\<forall>r. \<exists>x. x \<sqsubseteq> r \<and> x \<noteq> r"
-    using properpartof_def by blast
-qed
+"\<forall>r. \<exists>x. x \<sqsubseteq> r"
+  oops
 
 (* 2 marks *)
 theorem partof_overlaps:
-  assumes "x \<sqsubset> y"
-  shows " \<forall>r. r \<sqsubset> x \<longrightarrow> r \<sqsubset> y"
-proof (unfold properpartof_def)
-  show " \<forall>r. r \<sqsubseteq> x \<and> r \<noteq> x \<longrightarrow> r \<sqsubseteq> y \<and> r \<noteq> y"
-  using A1 properpartof_def by blast
-qed
+"undefined"
+  oops
 
 (* 1 mark *)
 theorem sum_parts_eq:
-  "\<Squnion> {x} x"
-proof (unfold sumregions_def)
-  show "(\<forall>y\<in>{x}. y \<sqsubseteq> x) \<and> (\<forall>y. y \<sqsubseteq> x \<longrightarrow>(\<exists>z\<in>{x}. y \<frown> z))"
-    by blast
-qed
+  "\<forall>x. \<Squnion> {x} x"
+  oops
 
 (* 2 marks *)
 theorem sum_relation_is_same':
-  assumes "\<And>c. r y c \<Longrightarrow> c \<sqsubseteq> y"
-      and "\<And>f. y \<frown> f \<Longrightarrow> \<exists>g. r y g \<and> g \<frown> f"
-      and "\<Squnion> {y} x"
+  assumes a: "\<And>c. r y c \<Longrightarrow> c \<sqsubseteq> y"
+      and b: "\<And>f. y \<frown> f \<Longrightarrow> \<exists>g. r y g \<and> g \<frown> f"
+      and c: "\<Squnion> {y} x"
     shows "\<Squnion> {k. r y k} x"
-proof (unfold sumregions_def)
-  show "(\<forall>y\<in>Collect (r y).y \<sqsubseteq> x) \<and> (\<forall>ya. ya \<sqsubseteq> x \<longrightarrow> (\<exists>z\<in>Collect (r y). ya \<frown> z))"
-    using sumregions_def by blast
-qed
+proof -
+show "\<Squnion> {k. r y k} x"
+  oops
 
 
 (* 1 mark *)
 theorem overlap_has_partof_overlap:
   assumes "e \<frown> f"
   shows "\<exists>r. r \<sqsubseteq> e \<and> r  \<frown> f"
-proof (unfold overlaps_def)
-oops
+  oops
 
 (* 1 marks *)
 theorem sum_parts_of_one_eq:

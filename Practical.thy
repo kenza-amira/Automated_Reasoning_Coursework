@@ -69,7 +69,7 @@ lemma
 
 (* 3 marks *)
 text \<open>Prove using ccontr\<close>
-lemma em:
+lemma excluded_middle:
   "P \<or> \<not> P"
   apply (rule ccontr)
   apply (rule notE)
@@ -85,7 +85,7 @@ lemma em:
 text \<open>Prove using excluded middle\<close>
 lemma notnotD:
   "\<not>\<not> P \<Longrightarrow> P"
-  apply (cut_tac P ="P" in excluded_middle)
+  apply (cut_tac P ="P" in HOL.excluded_middle)
   apply (erule disjE)
   apply (erule notE)
   apply assumption +
@@ -142,14 +142,7 @@ lemma
   apply (erule disjE)
   apply (erule allE)
   apply (erule notE)
-    apply assumption+
-  apply (erule notE)
-  apply (rule conjI)
-   apply (rule allI)
-   apply (rule notI)
-  apply assumption
-
-
+  apply assumption+
   oops
 section \<open>Part 2.1\<close>
 
@@ -197,65 +190,82 @@ theorem overlaps_sym:
 
 (* 1 mark *)
 theorem in_sum_set_partof:
-  "x \<in> \<alpha>  \<longrightarrow>  \<Squnion> \<alpha> x "
+  "x \<in> \<alpha> \<and> \<Squnion> \<alpha> y  \<longrightarrow>  x \<sqsubseteq> y "
 proof (unfold sumregions_def)
-  show  "x \<in> \<alpha> \<longrightarrow> (\<forall>y\<in>\<alpha>. y \<sqsubseteq> x) \<and> (\<forall>y. y \<sqsubseteq> x \<longrightarrow>(\<exists>z\<in>\<alpha>. y \<frown> z))"
-    using sumregions_def by blast
+  show  " x \<in> \<alpha> \<and> (\<forall>ya\<in>\<alpha>. ya \<sqsubseteq> y) \<and> (\<forall>ya. ya \<sqsubseteq> y \<longrightarrow>(\<exists>z\<in>\<alpha>. ya \<frown> z)) \<longrightarrow>x \<sqsubseteq> y"
+    using sumregions_def by simp
 qed
 
 (* 3 marks *)
 theorem overlaps_refl:
-  "x \<frown> x\<longrightarrow>  \<Squnion> \<alpha> x \<and> \<Squnion> \<alpha> y \<and> x = y"
-proof (unfold overlaps_def)
-  show "(\<exists>z. z \<sqsubseteq> x \<and> z \<sqsubseteq> x) \<longrightarrow> \<Squnion> \<alpha> x \<and> \<Squnion> \<alpha> y \<and> x = y"
-    using sumregions_def A2' by blast
+  "a \<frown> a"
+proof -
+  have "{a} \<noteq> {}" by auto
+  then  have "(\<exists>x. \<Squnion> {a} x)" using A2 by auto
+  then obtain x where "\<Squnion> {a} x" by blast
+  then have s: "(\<forall>y \<in> {a}. y \<sqsubseteq> x) \<and> (\<forall>y. y \<sqsubseteq> x  \<longrightarrow> (\<exists>z \<in> {a}. y \<frown> z))"
+    using sumregions_def by blast
+  then have "a \<sqsubseteq> x" by blast
+  then show  "a \<frown> a" using s by blast
 qed
 
+thm overlaps_def
 (* 1 mark *)
 theorem all_has_partof:
-  "\<forall>r. \<exists>x. x \<sqsubset> r"
-proof (unfold properpartof_def)
-  show "\<forall>r. \<exists>x. x \<sqsubseteq> r \<and> x \<noteq> r"
-    using properpartof_def by blast
+   "\<forall>r. \<exists>x. x \<sqsubseteq> r"
+proof
+  fix r
+  have "r \<frown> r" using overlaps_refl by blast
+  then have "\<exists>z. z \<sqsubseteq> r  \<and> z \<sqsubseteq> r" using overlaps_def by blast
+  then obtain z where "z \<sqsubseteq> r  \<and> z \<sqsubseteq> r" by blast
+  then have "z \<sqsubseteq> r" by simp
+  then show "\<exists>x. x \<sqsubseteq> r" by blast
 qed
 
 (* 2 marks *)
 theorem partof_overlaps:
-  assumes "x \<sqsubset> y"
-  shows " \<forall>r. r \<sqsubset> x \<longrightarrow> r \<sqsubset> y"
-proof (unfold properpartof_def)
-  show " \<forall>r. r \<sqsubseteq> x \<and> r \<noteq> x \<longrightarrow> r \<sqsubseteq> y \<and> r \<noteq> y"
-  using A1 properpartof_def by blast
+  assumes a:"r \<sqsubseteq> x"
+    and b:"x \<sqsubseteq> y"
+  shows "r \<sqsubseteq> y \<and> x \<frown> y"
+proof (unfold overlaps_def, rule conjI)
+  show "r \<sqsubseteq> y" using a b A1 by blast
+  then show "\<exists>z. z \<sqsubseteq> x \<and> z \<sqsubseteq> y" using overlaps_def a b by blast
 qed
 
 (* 1 mark *)
 theorem sum_parts_eq:
-  "\<Squnion> {x} x"
-proof (unfold sumregions_def)
-  show "(\<forall>y\<in>{x}. y \<sqsubseteq> x) \<and> (\<forall>y. y \<sqsubseteq> x \<longrightarrow>(\<exists>z\<in>{x}. y \<frown> z))"
-    by blast
-qed
+  "\<forall>x. \<Squnion> {x} x"
+  oops
 
 (* 2 marks *)
 theorem sum_relation_is_same':
-  assumes "\<And>c. r y c \<Longrightarrow> c \<sqsubseteq> y"
-      and "\<And>f. y \<frown> f \<Longrightarrow> \<exists>g. r y g \<and> g \<frown> f"
-      and "\<Squnion> {y} x"
+  assumes a: "\<And>c. r y c \<Longrightarrow> c \<sqsubseteq> y"
+      and b: "\<And>f. y \<frown> f \<Longrightarrow> \<exists>g. r y g \<and> g \<frown> f"
+      and c: "\<Squnion> {y} x"
     shows "\<Squnion> {k. r y k} x"
-proof (unfold sumregions_def)
-  show "(\<forall>y\<in>Collect (r y).y \<sqsubseteq> x) \<and> (\<forall>ya. ya \<sqsubseteq> x \<longrightarrow> (\<exists>z\<in>Collect (r y). ya \<frown> z))"
-    using sumregions_def by blast
-qed
+proof (unfold sumregions_def, safe)
+  fix ya
+  have "y \<sqsubseteq> x" 
+    using c sumregions_def by blast
+  then show "r y ya \<Longrightarrow> ya \<sqsubseteq> x" 
+    using a c A1 by blast
+  have "y \<frown> y" using overlaps_refl by blast
+  then have "\<exists>g. r y g \<and> g \<frown> x" by blast
+  then obtain g where "r y g \<and> g \<frown> x" by blast
+  show "\<exists>z\<in>{k. r y k}. ya \<frown> z"
+  oops
 
 
 (* 1 mark *)
 theorem overlap_has_partof_overlap:
-  assumes "e \<frown> f"
-  shows "\<exists>r. r \<sqsubseteq> e \<and> r  \<frown> f"
-proof (unfold overlaps_def)
-  show "\<exists>r. r \<sqsubseteq> e \<and> (\<exists>z. z \<sqsubseteq> r \<and> z \<sqsubseteq> f)"
-    using overlaps_def by blast
-oops
+  assumes a: "e \<frown> f"
+and b : "e = r"
+and c : "r \<sqsubseteq> e"
+  shows "e \<sqsubseteq> e \<and> e \<frown> f"
+proof (unfold overlaps_def, rule conjI)
+  show "e \<sqsubseteq> e" using b c by simp
+  show "\<exists>z. z \<sqsubseteq> e \<and> z \<sqsubseteq> f" using overlaps_def a by simp
+qed
 
 (* 1 marks *)
 theorem sum_parts_of_one_eq:
@@ -265,7 +275,7 @@ oops
 
 (* 5 marks *)
 theorem both_partof_eq:
-  assumes "undefined"
+  assumes "x = y"
   shows "undefined"
 oops
 
@@ -277,7 +287,9 @@ oops
 
 (* 2 marks *)
 theorem sum_one_is_self:
-  "undefined"
+  assumes a: "\<Squnion> {x} y"
+  shows "\<Squnion> {x} x"
+proof (unfold sumregions_def)
 oops
 
 (* 2 marks *)
@@ -287,8 +299,8 @@ oops
 
 (* 4 marks *)
 theorem proper_have_nonoverlapping_proper:
-  assumes "undefined"
-  shows "undefined"
+  assumes "s \<sqsubset> r"
+  shows "\<exists>g. g\<sqsubset>r \<and> \<not> (g \<frown> s)"
 oops
 
 (* 1 mark *)
@@ -435,12 +447,18 @@ begin
 lemma
   assumes T4: "\<And>x y. \<lbrakk>sphere x; sphere y\<rbrakk> \<Longrightarrow> x y \<doteq> y x"
       and A9: "\<exists>\<degree>s. s \<sqsubseteq> r"
-  shows False
+    shows False
+
 oops
 
 (* 3 marks *)
+
+(* I have added a condition i.e "sphere z" because after looking at the definitions provided 
+I could tell that y is already considered a sphere in the onboundary definition,
+z' is also considered to be a sphere thanks to the existential quantifier leaving us with z 
+that is only considered to be a region.*)
 definition equidistant3' :: "'region \<Rightarrow> 'region \<Rightarrow> 'region \<Rightarrow> bool" where
-  "equidistant3' x y z \<equiv> undefined"
+"equidistant3' x y z \<equiv> \<exists>\<degree>z'. z' \<odot> z \<and> onboundary y z' \<and> onboundary x z' \<and> sphere z"
 
 no_notation equidistant4 ("_ _ \<doteq> _ _" [100, 100, 100, 100] 100)
 
