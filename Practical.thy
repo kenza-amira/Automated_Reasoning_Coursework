@@ -155,7 +155,7 @@ definition overlaps :: "'region \<Rightarrow> 'region \<Rightarrow> bool" (infix
   "x \<frown> y \<equiv> (\<exists>z. z \<sqsubseteq> x  \<and> z \<sqsubseteq> y)"
 
 definition disjoint :: "'region \<Rightarrow> 'region \<Rightarrow> bool" (infix "\<asymp>" 100) where
-  "x \<asymp> y \<equiv> \<not> x \<frown> y"
+  "x \<asymp> y \<equiv> \<not> (x \<frown> y)"
 
 (* 1 mark *)
 definition partialoverlap :: "'region \<Rightarrow> 'region \<Rightarrow> bool" (infix "~\<frown>" 100) where
@@ -271,9 +271,14 @@ oops
 
 (* 5 marks *)
 theorem both_partof_eq:
-  assumes "undefined"
-  shows "undefined"
-oops
+  assumes a:"x \<sqsubseteq> y"
+    and b: "y \<sqsubseteq> x"
+  shows "\<Squnion> {x} y"
+proof (rule ccontr)
+  assume "\<not> \<Squnion> {x} y "
+  then show False
+    by (smt A1 b local.a overlap_has_partof_overlap overlaps_refl partof_overlaps singletonD singletonI sumregions_def)
+qed
 
 (* 4 marks *)
 theorem sum_all_with_parts_overlapping:
@@ -299,8 +304,7 @@ oops
 theorem proper_have_nonoverlapping_proper:
   assumes a: "s \<sqsubset> r"
   shows "\<exists>g. g \<sqsubset> r \<and> (g \<asymp> s)"
-proof (unfold disjoint_def)
-
+proof -
 oops
 
 (* 1 mark *)
@@ -409,19 +413,43 @@ oops
 
 (* 6 marks *)
 theorem region_is_spherical_sum:
-  "undefined"
+  "\<Squnion> {s. s\<sqsubseteq>r \<and> sphere(s)} r"
+proof -
+  have "\<exists>\<degree>x. x \<sqsubseteq> r" using A9 by simp
+  then obtain x where "x \<sqsubseteq> r" by blast
+  have  s: "\<forall>r. \<exists>y. y \<sqsubseteq> r" using all_has_partof by blast
+  fix r
+  obtain y where "y \<sqsubseteq> r" using s by blast
+  then have "\<Squnion> {k. k\<sqsubseteq>r } r" using sum_parts_eq by blast
+  have "r  \<frown> r" using overlaps_sym by blast
+  then show "\<Squnion> {s. s\<sqsubseteq>r \<and> sphere(s)} r"
+sledgehammer
 oops
 
 (* 1 mark *)
 theorem region_spherical_interior:
-  "undefined"
-oops
+  "oninterior s r \<equiv> \<exists>s'. s' \<odot> s \<and> s' \<sqsubseteq> r"
+proof -
+  show "oninterior s r \<equiv> \<exists>s'. s' \<odot> s \<and> s' \<sqsubseteq> r" 
+    using oninterior_def by simp
+qed
 
+thm parthood_partial_order.antisym
 (* 2 marks *)
+(*Axiom 8 allows us to show partial parthood, we can also derive the LHS
+from the RHS because of the double sided arrow which happen to be our assumptions*)
 theorem equal_interiors_equal_regions:
-  assumes "undefined"
-  shows "undefined"
-oops
+  assumes a: "\<forall>s. oninterior s x = oninterior s y"
+  shows "y = x"
+proof -
+  have b: "\<forall>s. oninterior s x \<longrightarrow>oninterior s y" using a by simp
+  fix s
+  have c: "\<forall>s. oninterior s y \<longrightarrow>oninterior s x" using a by simp
+  fix s
+  have d: "y \<sqsubseteq> x" using A8 c by blast
+  have "x \<sqsubseteq> y" using A8 b by blast
+  then show "y=x" using parthood_partial_order.antisym using d by blast
+qed 
 
 (* 2 marks *)
 theorem proper_have_nonoverlapping_proper_sphere:
@@ -448,7 +476,6 @@ lemma
   assumes T4: "\<And>x y. \<lbrakk>sphere x; sphere y\<rbrakk> \<Longrightarrow> x y \<doteq> y x"
       and A9: "\<exists>\<degree>s. s \<sqsubseteq> r"
     shows False
-
 oops
 
 (* 3 marks *)
