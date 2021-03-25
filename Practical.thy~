@@ -57,7 +57,7 @@ lemma
 
 
 (* 2 marks *)
-lemma
+lemma a:
   "(\<forall>x. P x) \<longrightarrow> \<not> (\<exists>x. \<not> P x)" 
   apply (rule impI)
   apply (rule notI)
@@ -119,22 +119,14 @@ lemma ccontr:
 (* 3 marks *)
 lemma
   "(\<not> (\<forall>x. P x \<or> R x)) = (\<exists>x. \<not> P x \<and> \<not> R x)"
-  apply (rule iffI)
-   apply (rule classical)
-   apply (erule notE)+
-   apply (rule exI)
-   apply (rule conjI)
-    apply (rule notI)
-  apply assumption
-  apply (rule ccontr)
 oops
 
 (* 3 marks *)
 
-lemma     
+lemma b:    
   "(\<exists>x. P x \<or> R x) = (\<not>((\<forall>x. \<not> P x) \<and> \<not> (\<exists>x. R x)))"
   apply (rule iffI)
-  apply (rule notI)
+   apply (rule notI)
   apply (erule exE)
   apply (erule conjE)
   apply (erule notE)+
@@ -143,6 +135,10 @@ lemma
   apply (erule allE)
   apply (erule notE)
   apply assumption+
+  oops
+
+lemma    
+  "(\<exists>x. P x \<or> R x) = (\<not>((\<forall>x. \<not> P x) \<and> \<not> (\<exists>x. R x)))"
   oops
 section \<open>Part 2.1\<close>
 
@@ -159,7 +155,7 @@ definition overlaps :: "'region \<Rightarrow> 'region \<Rightarrow> bool" (infix
   "x \<frown> y \<equiv> (\<exists>z. z \<sqsubseteq> x  \<and> z \<sqsubseteq> y)"
 
 definition disjoint :: "'region \<Rightarrow> 'region \<Rightarrow> bool" (infix "\<asymp>" 100) where
-  "x \<asymp> y \<equiv> \<not> x \<frown> y"
+  "x \<asymp> y \<equiv> \<not> (x \<frown> y)"
 
 (* 1 mark *)
 definition partialoverlap :: "'region \<Rightarrow> 'region \<Rightarrow> bool" (infix "~\<frown>" 100) where
@@ -200,16 +196,15 @@ qed
 theorem overlaps_refl:
   "a \<frown> a"
 proof -
-  have "{a} \<noteq> {}" by auto
-  then  have "(\<exists>x. \<Squnion> {a} x)" using A2 by auto
+  have "{a} \<noteq> {}" by simp
+  then  have "(\<exists>x. \<Squnion> {a} x)" using A2 by simp
   then obtain x where "\<Squnion> {a} x" by blast
   then have s: "(\<forall>y \<in> {a}. y \<sqsubseteq> x) \<and> (\<forall>y. y \<sqsubseteq> x  \<longrightarrow> (\<exists>z \<in> {a}. y \<frown> z))"
-    using sumregions_def by blast
-  then have "a \<sqsubseteq> x" by blast
-  then show  "a \<frown> a" using s by blast
+    using sumregions_def by simp
+  then have "a \<sqsubseteq> x" by simp
+  then show  "a \<frown> a" using s by simp
 qed
 
-thm overlaps_def
 (* 1 mark *)
 theorem all_has_partof:
    "\<forall>r. \<exists>x. x \<sqsubseteq> r"
@@ -219,7 +214,7 @@ proof
   then have "\<exists>z. z \<sqsubseteq> r  \<and> z \<sqsubseteq> r" using overlaps_def by blast
   then obtain z where "z \<sqsubseteq> r  \<and> z \<sqsubseteq> r" by blast
   then have "z \<sqsubseteq> r" by simp
-  then show "\<exists>x. x \<sqsubseteq> r" by blast
+  then show "\<exists>x. x \<sqsubseteq> r"  by blast
 qed
 
 (* 2 marks *)
@@ -229,13 +224,16 @@ theorem partof_overlaps:
   shows "r \<sqsubseteq> y \<and> x \<frown> y"
 proof (unfold overlaps_def, rule conjI)
   show "r \<sqsubseteq> y" using a b A1 by blast
-  then show "\<exists>z. z \<sqsubseteq> x \<and> z \<sqsubseteq> y" using overlaps_def a b by blast
+  then show "\<exists>z. z \<sqsubseteq> x \<and> z \<sqsubseteq> y" using overlaps_def a by blast
 qed
 
 (* 1 mark *)
 theorem sum_parts_eq:
-  "\<forall>x. \<Squnion> {x} x"
-  oops
+"\<Squnion> {r. r \<sqsubseteq> x } x"
+proof (unfold sumregions_def)
+  show "(\<forall>y\<in>{r. r \<sqsubseteq> x}. y \<sqsubseteq> x) \<and>(\<forall>y. y \<sqsubseteq> x \<longrightarrow> (\<exists>z \<in>{r. r \<sqsubseteq> x}. y \<frown> z))"
+  using overlaps_refl by auto
+qed
 
 (* 2 marks *)
 theorem sum_relation_is_same':
@@ -245,27 +243,24 @@ theorem sum_relation_is_same':
     shows "\<Squnion> {k. r y k} x"
 proof (unfold sumregions_def, safe)
   fix ya
-  have "y \<sqsubseteq> x" 
+  have  "y \<sqsubseteq> x" 
     using c sumregions_def by blast
-  then show "r y ya \<Longrightarrow> ya \<sqsubseteq> x" 
+  then show  "r y ya \<Longrightarrow> ya \<sqsubseteq> x"
     using a c A1 by blast
-  have "y \<frown> y" using overlaps_refl by blast
-  then have s: "\<exists>g. r y g \<and> g \<frown> y" using b by blast
-  then obtain g where "r y g \<and> g \<frown> y" by blast
-  then have "g \<sqsubseteq> y" using a by blast
-  then show "\<exists>z\<in>{k. r y k}. ya \<frown> z" using s by blast
-  oops
-
+  then show "\<And>ya. ya \<sqsubseteq> x \<Longrightarrow>\<exists>z\<in>Collect (r y). ya \<frown> z"
+  using b c overlaps_sym sumregions_def by auto
+qed
 
 (* 1 mark *)
 theorem overlap_has_partof_overlap:
   assumes a: "e \<frown> f"
-and b : "e = r"
-and c : "r \<sqsubseteq> e"
-  shows "e \<sqsubseteq> e \<and> e \<frown> f"
-proof (unfold overlaps_def, rule conjI)
-  show "e \<sqsubseteq> e" using b c by simp
-  show "\<exists>z. z \<sqsubseteq> e \<and> z \<sqsubseteq> f" using overlaps_def a by simp
+  shows "\<exists>r. r \<sqsubseteq> e \<and> r \<frown> f"
+proof -
+  have "e \<frown> e" using overlaps_refl by simp
+  then have "\<exists>z. z \<sqsubseteq> e  \<and> z \<sqsubseteq> e" using overlaps_def by simp
+  then obtain z where "z \<sqsubseteq> e  \<and> z \<sqsubseteq> e" by blast
+  show "\<exists>r. r \<sqsubseteq> e \<and> r \<frown> f"
+  using all_has_partof assms overlaps_def partof_overlaps by blast
 qed
 
 (* 1 marks *)
@@ -276,9 +271,14 @@ oops
 
 (* 5 marks *)
 theorem both_partof_eq:
-  assumes "x = y"
-  shows "undefined"
-oops
+  assumes a:"x \<sqsubseteq> y"
+    and b: "y \<sqsubseteq> x"
+  shows "\<Squnion> {x} y"
+proof (rule ccontr)
+  assume "\<not> \<Squnion> {x} y "
+  then show False
+    by (smt A1 b local.a overlap_has_partof_overlap overlaps_refl partof_overlaps singletonD singletonI sumregions_def)
+qed
 
 (* 4 marks *)
 theorem sum_all_with_parts_overlapping:
@@ -288,9 +288,11 @@ oops
 
 (* 2 marks *)
 theorem sum_one_is_self:
-  assumes a: "\<Squnion> {x} y"
-  shows "\<Squnion> {x} x"
-proof (unfold sumregions_def)
+ "\<Squnion> {x} x"
+proof -  
+  have "{x} \<noteq> {}" by simp
+  then have "\<exists>y. \<Squnion> {x} y" using A2 by simp
+  then obtain y where "\<Squnion> {x} y" by blast
 oops
 
 (* 2 marks *)
@@ -300,15 +302,15 @@ oops
 
 (* 4 marks *)
 theorem proper_have_nonoverlapping_proper:
-  assumes "s \<sqsubset> r"
-  shows "\<exists>g. g\<sqsubset>r \<and> \<not> (g \<frown> s)"
+  assumes a: "s \<sqsubset> r"
+  shows "\<exists>g. g \<sqsubset> r \<and> (g \<asymp> s)"
+proof -
 oops
 
 (* 1 mark *)
 sublocale parthood_partial_order: order "(\<sqsubseteq>)" "(\<sqsubset>)"
 proof
   show "\<And>x y. x \<sqsubset> y = (x \<sqsubseteq> y \<and> \<not> y \<sqsubseteq> x)"
-    sledgehammer
     sorry
 next
   show "\<And>x. x \<sqsubseteq> x"
@@ -411,19 +413,44 @@ oops
 
 (* 6 marks *)
 theorem region_is_spherical_sum:
-  "undefined"
+  "\<Squnion> {s. s\<sqsubseteq>r \<and> sphere(s)} r"
+proof -
+  have "\<exists>\<degree>x. x \<sqsubseteq> r" using A9 by simp
+  then obtain x where "x \<sqsubseteq> r" by blast
+  have  s: "\<forall>r. \<exists>y. y \<sqsubseteq> r" using all_has_partof by blast
+  fix r
+  obtain y where "y \<sqsubseteq> r" using s by blast
+  then have "\<Squnion> {k. k\<sqsubseteq>r } r" using sum_parts_eq by blast
+  have "r \<frown> r" using overlaps_refl by blast
+  then show "\<Squnion> {s. s\<sqsubseteq>r \<and> sphere(s)} r"
+sledgehammer
 oops
 
 (* 1 mark *)
 theorem region_spherical_interior:
-  "undefined"
-oops
+  "oninterior s r \<equiv> (\<exists>s'. s' \<sqsubseteq> r \<and> oninterior s s')"
+proof
+  show "oninterior s r \<equiv> (\<exists>s'. s' \<sqsubseteq> r \<and> oninterior s s')" 
+    sledgehammer
+    using oninterior_def by simp
+qed
 
+thm parthood_partial_order.antisym
 (* 2 marks *)
+(*Axiom 8 allows us to show partial parthood, we can also derive the LHS
+from the RHS because of the double sided arrow which happen to be our assumptions*)
 theorem equal_interiors_equal_regions:
-  assumes "undefined"
-  shows "undefined"
-oops
+  assumes a: "\<forall>s. oninterior s x = oninterior s y"
+  shows "y = x"
+proof -
+  have b: "\<forall>s. oninterior s x \<longrightarrow>oninterior s y" using a by simp
+  fix s
+  have c: "\<forall>s. oninterior s y \<longrightarrow>oninterior s x" using a by simp
+  fix s
+  have d: "y \<sqsubseteq> x" using A8 c by blast
+  have "x \<sqsubseteq> y" using A8 b by blast
+  then show "y=x" using parthood_partial_order.antisym using d by blast
+qed 
 
 (* 2 marks *)
 theorem proper_have_nonoverlapping_proper_sphere:
@@ -450,7 +477,6 @@ lemma
   assumes T4: "\<And>x y. \<lbrakk>sphere x; sphere y\<rbrakk> \<Longrightarrow> x y \<doteq> y x"
       and A9: "\<exists>\<degree>s. s \<sqsubseteq> r"
     shows False
-
 oops
 
 (* 3 marks *)
