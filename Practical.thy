@@ -321,13 +321,17 @@ proof (rule ccontr)
       using \<open>\<not> y \<sqsubseteq> x\<close> \<open>y \<sqsubseteq> x\<close> by auto
   next 
     assume "\<exists>w. w \<sqsubseteq> x \<and> \<not> w \<frown> y"
-    then obtain w where "w \<sqsubseteq> x \<and> \<not> w \<frown> y" by blast
-    have "(\<forall>ya. ya \<sqsubseteq> x \<longrightarrow>(\<exists>z\<in>{rz. r \<sqsubseteq> z \<and> r \<frown> y}. ya \<frown> z))"
+    then obtain w where f: "w \<sqsubseteq> x \<and> \<not> w \<frown> y" by blast
+    have " (\<forall>ya. ya \<sqsubseteq> x \<longrightarrow> (\<exists>z\<in>{rz. r \<sqsubseteq> z \<and>r \<frown> y}. ya \<frown> z))"
       using assms sumregions_def by auto
-    then have "w \<frown> z"
-      sledgehammer
-    show False
-      
+    then have e: "\<exists>z\<in>{rz. r \<sqsubseteq> z \<and> r \<frown> y}. w \<frown> z"
+      using f by blast
+    then obtain z where  "w \<frown> z"
+      by blast
+    then have "\<exists>wz. wz \<sqsubseteq> z \<and> wz \<sqsubseteq> w" 
+      using overlaps_def  by blast
+    then obtain wz where "wz \<sqsubseteq> z \<and> wz \<sqsubseteq> w" by auto
+    show False      
 oops
 
 (* 2 marks *)
