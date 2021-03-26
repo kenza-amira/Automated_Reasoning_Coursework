@@ -136,6 +136,7 @@ lemma
   apply (erule allE)
   apply (erule notE)
     apply assumption+
+  apply (rule notE)
 
   oops
 
@@ -217,7 +218,7 @@ proof
 qed
 
 (* 2 marks *)
-theorem partof_overlaps:
+(*theorem partof_overlaps:
   assumes a:"r \<sqsubseteq> x"
     and b:"x \<sqsubseteq> y"
   shows "\<exists>s. s \<sqsubseteq> x \<and> s \<frown> y"
@@ -225,9 +226,9 @@ proof -
   have "r \<sqsubseteq> y" using a b A1 by blast
   then show "\<exists>s. s \<sqsubseteq> x \<and> s \<frown> y" 
     using A1 all_has_partof local.a overlaps_def by blast
-qed
+qed*)
 
-theorem partof_overlaps':
+theorem partof_overlaps:
   assumes "x \<sqsubseteq> y"
   shows "r \<sqsubseteq> x \<Longrightarrow> r \<frown> y"
 proof -
@@ -287,7 +288,7 @@ and c: "\<Squnion> {w. w \<sqsubseteq> x} x"
 proof (rule ccontr)
   assume "\<not> \<Squnion> {r. r \<sqsubseteq> x} y "
   then have "\<exists>z. (z \<sqsubseteq> x \<and> \<not>(z \<sqsubseteq> y)) \<or> (z \<sqsubseteq> y \<and> (\<forall>s. s \<sqsubseteq> x \<longrightarrow> \<not> (s \<frown> z)))"
-    by (smt A1 b c sumregions_def)
+    using sumregions_def assms partof_overlaps by blast
   then obtain z where "(z \<sqsubseteq> x \<and> \<not>(z \<sqsubseteq> y)) \<or> (z \<sqsubseteq> y \<and> (\<forall>s. s \<sqsubseteq> x \<longrightarrow> \<not> (s \<frown> z)))" by blast
   from this show False
   proof
@@ -297,7 +298,7 @@ proof (rule ccontr)
   next
     assume w: "z \<sqsubseteq> y \<and> (\<forall>s. s \<sqsubseteq> x \<longrightarrow> \<not> s \<frown> z)"
     show False
-      using A1 w b a overlaps_sym partof_overlaps' by blast
+      using A1 w a b overlaps_sym partof_overlaps by blast
   qed 
 qed
 
