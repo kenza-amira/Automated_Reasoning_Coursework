@@ -123,11 +123,10 @@ lemma
 oops
 
 (* 3 marks *)
-
 lemma     
   "(\<exists>x. P x \<or> R x) = (\<not>((\<forall>x. \<not> P x) \<and> \<not> (\<exists>x. R x)))"
   apply (rule iffI)
-   apply (rule notI)
+  apply (rule notI)
   apply (erule exE)
   apply (erule conjE)
   apply (erule notE)+
@@ -136,7 +135,6 @@ lemma
   apply (erule allE)
   apply (erule notE)
     apply assumption+
-  apply (rule notE)
 
   oops
 
@@ -248,10 +246,10 @@ qed
 
 (* 2 marks *)
 theorem sum_relation_is_same':
-  assumes a: "\<And>c. r y c \<Longrightarrow> c \<sqsubseteq> y"
+ assumes a: "\<And>c. r y c \<Longrightarrow> c \<sqsubseteq> y"
       and b: "\<And>f. y \<frown> f \<Longrightarrow> \<exists>g. r y g \<and> g \<frown> f"
       and c: "\<Squnion> {y} x"
-    shows "\<Squnion> {k. r y k} x"
+  shows "\<Squnion> {k. r y k} x"
 proof (unfold sumregions_def, safe)
   fix ya
   have  "y \<sqsubseteq> x" 
@@ -259,8 +257,9 @@ proof (unfold sumregions_def, safe)
   then show  "r y ya \<Longrightarrow> ya \<sqsubseteq> x"
     using a c A1 by blast
   then show "\<And>ya. ya \<sqsubseteq> x \<Longrightarrow>\<exists>z\<in>Collect (r y). ya \<frown> z"
-  using b c overlaps_sym sumregions_def by auto
+    using b c overlaps_sym sumregions_def by auto
 qed
+
 
 (* 1 mark *)
 theorem overlap_has_partof_overlap:
@@ -275,10 +274,13 @@ qed
 
 (* 1 marks *)
 theorem sum_parts_of_one_eq:
-  assumes "\<Squnion> {r. r \<sqsubseteq> x} y"
-  shows "\<Squnion> {x} y"
-  sorry
-
+  assumes "\<Squnion> {x} y"
+  shows "\<Squnion> {w. w \<sqsubseteq> x} y"
+proof -
+  from sum_relation_is_same' [where r = "(\<lambda> x w. w \<sqsubseteq> x)"]
+  show "\<Squnion> {w. w \<sqsubseteq> x} y"
+    using assms overlap_has_partof_overlap by auto
+qed
 (* 5 marks *)
 theorem both_partof_eq:
   assumes a:"x \<sqsubseteq> y"
@@ -304,7 +306,7 @@ qed
 
 (* 4 marks *)
 theorem sum_all_with_parts_overlapping:
-  assumes "\<Squnion> {rz. r \<sqsubseteq> z \<and> r \<frown> y} x"
+  assumes "\<Squnion> {z. \<forall>r. r \<sqsubseteq> z \<longrightarrow> r \<frown> y} x"
   shows "\<Squnion> {y} x"
 proof (rule ccontr)
   assume "\<not> \<Squnion> {y} x"
@@ -312,30 +314,33 @@ proof (rule ccontr)
     using sumregions_def by auto
   from this show False
   proof
-    have "y \<in> {rz. r \<sqsubseteq> z \<and> r \<frown> y}"
-      using all_has_partof assms sumregions_def by fastforce
-    then have "y \<sqsubseteq> x"
-      using assms in_sum_set_partof by auto
-    assume "\<not> y \<sqsubseteq> x" 
+    assume "\<not>(y \<sqsubseteq> x)"
+    have "\<forall>r. r \<sqsubseteq> y \<longrightarrow> r \<frown> y"
+      using A1 all_has_partof overlaps_def by blast
+    then have " y \<in> {z. \<forall>r. r \<sqsubseteq> z \<longrightarrow> r \<frown> y}"
+      by simp
+    then have "y \<sqsubseteq> x" using assms sumregions_def by auto
     show False
       using \<open>\<not> y \<sqsubseteq> x\<close> \<open>y \<sqsubseteq> x\<close> by auto
-  next 
-    assume "\<exists>w. w \<sqsubseteq> x \<and> \<not> w \<frown> y"
-    then obtain w where f: "w \<sqsubseteq> x \<and> \<not> w \<frown> y" by blast
-    have " (\<forall>ya. ya \<sqsubseteq> x \<longrightarrow> (\<exists>z\<in>{rz. r \<sqsubseteq> z \<and>r \<frown> y}. ya \<frown> z))"
-      using assms sumregions_def by auto
-    then have e: "\<exists>z\<in>{rz. r \<sqsubseteq> z \<and> r \<frown> y}. w \<frown> z"
-      using f by blast
-    then obtain z where  "w \<frown> z"
-      by blast
-    then have "\<exists>wz. wz \<sqsubseteq> z \<and> wz \<sqsubseteq> w" 
-      using overlaps_def  by blast
-    then obtain wz where "wz \<sqsubseteq> z \<and> wz \<sqsubseteq> w" by auto
+  next
+    assume "(\<exists>w. w \<sqsubseteq> x \<and> \<not>(w \<frown> y))"
+    then obtain w where " w \<sqsubseteq> x \<and> \<not>(w \<frown> y)" by blast
+    have " (\<forall>ya. ya \<sqsubseteq> x \<longrightarrow> (\<exists>z\<in>{z. \<forall>r. r \<sqsubseteq> z \<longrightarrow> r \<frown> y}.  ya \<frown> z))" 
+      using assms sumregions_def by blast
+    then have "(\<exists>z. z\<in>{z. \<forall>r. r \<sqsubseteq> z \<longrightarrow> r \<frown> y } \<and>  w \<frown> z \<and> (\<forall>t. t \<sqsubseteq> z \<longrightarrow> t \<frown> y))"
+      using \<open>w \<sqsubseteq> x \<and> \<not> w \<frown> y\<close> by blast
+    then obtain z where "z\<in>{z. \<forall>r. r \<sqsubseteq> z \<longrightarrow> r \<frown> y} \<and>  w \<frown> z" and "\<forall>t. t \<sqsubseteq> z \<longrightarrow> t \<frown> y" by auto
+    then have "\<exists>wz. wz \<sqsubseteq> w \<and> wz \<sqsubseteq> z" using overlaps_def by blast
+    then obtain wz where "wz \<sqsubseteq> w \<and> wz \<sqsubseteq> z" by blast
+    then have "wz \<frown> y"
+      using \<open>\<forall>t. t \<sqsubseteq> z \<longrightarrow> t \<frown> y\<close> by simp
+    then have "\<exists>wzy. wzy \<sqsubseteq> wz \<and> wzy \<sqsubseteq> y" using overlaps_def by blast
+    then have "wzy \<sqsubseteq> w" 
+      using A1 \<open>w \<sqsubseteq> x \<and> \<not> w \<frown> y\<close> \<open>wz \<sqsubseteq> w \<and> wz \<sqsubseteq> z\<close> overlaps_def by blast
     show False
-      sorry
+      using A1 \<open>w \<sqsubseteq> x \<and> \<not> w \<frown> y\<close> \<open>wz \<frown> y\<close> \<open>wz \<sqsubseteq> w \<and> wz \<sqsubseteq> z\<close> overlaps_def by blast
   qed
 qed
-
 (* 2 marks *)
 theorem sum_one_is_self:
  "\<Squnion> {x} x"
@@ -344,23 +349,14 @@ proof -
   then have "\<exists>y. \<Squnion> {x} y" using A2 by simp
   then obtain y where "\<Squnion> {x} y" by blast
   have "\<Squnion> {r. r \<sqsubseteq> x} x" using sum_parts_eq by blast
-  then show "\<Squnion> {x} x" using sum_parts_of_one_eq by blast
+  then show "\<Squnion> {x} x" 
+    using A2' \<open>\<Squnion> {x} y\<close> sum_parts_of_one_eq by blast
 qed
 
 (* 2 marks *)
 theorem sum_all_with_parts_overlapping_self:
   "\<Squnion> {rz. r \<sqsubseteq> z \<and> r \<frown> x} x"
-proof (unfold sumregions_def)
-  show "(\<forall>y\<in>{rz.
-r \<sqsubseteq> z \<and> r \<frown> x}.
-        y \<sqsubseteq> x) \<and>
-    (\<forall>y. y \<sqsubseteq> x \<longrightarrow>
-         (\<exists>z
- \<in>{rz. r \<sqsubseteq> z \<and>
-        r \<frown> x}.
-   y \<frown> z))"
-    sledgehammer
-    
+proof -
 oops
 
 (* 4 marks *)
@@ -474,6 +470,11 @@ theorem conc_equiv:
   "equiv undefined undefined"
   oops
 
+lemma conc_refl: "concentric a a"
+  sorry
+lemma conc_sym: "concentric a b = concentric b a"
+  sorry
+
 (* 6 marks *)
 theorem region_is_spherical_sum:
   "\<Squnion> {s. s\<sqsubseteq>r \<and> sphere s} r"
@@ -499,6 +500,7 @@ theorem region_spherical_interior:
   "oninterior s r \<equiv> (\<exists>s'. s' \<sqsubseteq> r \<and> oninterior s s')"
 proof -
   show "oninterior s r \<equiv> (\<exists>s'. s' \<sqsubseteq> r \<and> oninterior s s')" 
+    sledgehammer
   oops
 
 thm parthood_partial_order.antisym
