@@ -119,11 +119,12 @@ lemma ccontr:
 (* 3 marks *)
 lemma
   "(\<not> (\<forall>x. P x \<or> R x)) = (\<exists>x. \<not> P x \<and> \<not> R x)"
+  apply (rule iffI)
 oops
 
 (* 3 marks *)
 
-lemma b:    
+lemma     
   "(\<exists>x. P x \<or> R x) = (\<not>((\<forall>x. \<not> P x) \<and> \<not> (\<exists>x. R x)))"
   apply (rule iffI)
    apply (rule notI)
@@ -134,12 +135,10 @@ lemma b:
   apply (erule disjE)
   apply (erule allE)
   apply (erule notE)
-  apply assumption+
+    apply assumption+
+
   oops
 
-lemma    
-  "(\<exists>x. P x \<or> R x) = (\<not>((\<forall>x. \<not> P x) \<and> \<not> (\<exists>x. R x)))"
-  oops
 section \<open>Part 2.1\<close>
 
 locale partof =
@@ -331,8 +330,10 @@ proof (rule ccontr)
     then have "\<exists>wz. wz \<sqsubseteq> z \<and> wz \<sqsubseteq> w" 
       using overlaps_def  by blast
     then obtain wz where "wz \<sqsubseteq> z \<and> wz \<sqsubseteq> w" by auto
-    show False      
-oops
+    show False
+      sorry
+  qed
+qed
 
 (* 2 marks *)
 theorem sum_one_is_self:
@@ -347,7 +348,18 @@ qed
 
 (* 2 marks *)
 theorem sum_all_with_parts_overlapping_self:
-  "undefined"
+  "\<Squnion> {rz. r \<sqsubseteq> z \<and> r \<frown> x} x"
+proof (unfold sumregions_def)
+  show "(\<forall>y\<in>{rz.
+r \<sqsubseteq> z \<and> r \<frown> x}.
+        y \<sqsubseteq> x) \<and>
+    (\<forall>y. y \<sqsubseteq> x \<longrightarrow>
+         (\<exists>z
+ \<in>{rz. r \<sqsubseteq> z \<and>
+        r \<frown> x}.
+   y \<frown> z))"
+    sledgehammer
+    
 oops
 
 (* 4 marks *)
@@ -456,24 +468,30 @@ locale partial_region_geometry = mereology_sphere partof sphere
 begin
 
 (* 2 marks *)
-thm equiv_def
+thm equiv_type
 theorem conc_equiv:
   "equiv undefined undefined"
-oops
+  oops
 
 (* 6 marks *)
 theorem region_is_spherical_sum:
-  "\<Squnion> {s. s\<sqsubseteq>r \<and> sphere(s)} r"
-proof -
-  have "\<exists>\<degree>x. x \<sqsubseteq> r" using A9 by simp
-  then obtain x where "x \<sqsubseteq> r" by blast
-  have  s: "\<forall>r. \<exists>y. y \<sqsubseteq> r" using all_has_partof by blast
-  fix r
-  obtain y where "y \<sqsubseteq> r" using s by blast
-  then have "\<Squnion> {k. k\<sqsubseteq>r } r" using sum_parts_eq by blast
-  have "r \<frown> r" using overlaps_refl by blast
-  then show "\<Squnion> {s. s\<sqsubseteq>r \<and> sphere(s)} r"
-oops
+  "\<Squnion> {s. s\<sqsubseteq>r \<and> sphere s} r"
+proof (rule ccontr)
+  assume " \<not> \<Squnion> {s. s \<sqsubseteq> r \<and> sphere s} r"
+  then have " \<not>(\<forall>y \<in>{s. s \<sqsubseteq> r \<and>  sphere s}.  y \<sqsubseteq> r) \<or> \<not>(\<forall>y. y \<sqsubseteq> r \<longrightarrow> (\<exists>z\<in>{s. s \<sqsubseteq> r \<and> sphere s}. y \<frown> z))"
+    using sumregions_def by blast
+  from this show False
+  proof 
+    assume " \<not> (\<forall>y\<in>{s. s \<sqsubseteq> r \<and> sphere s}. y \<sqsubseteq> r)"
+    show False
+      sorry
+  next 
+    assume "\<not>(\<forall>y. y \<sqsubseteq> r \<longrightarrow> (\<exists>z\<in>{s. s \<sqsubseteq> r \<and> sphere s}. y \<frown> z))"
+    show False
+      sorry
+  qed
+qed
+
 
 (* 1 mark *)
 theorem region_spherical_interior:
