@@ -122,6 +122,11 @@ lemma ccontr:
 lemma
   "(\<not> (\<forall>x. P x \<or> R x)) = (\<exists>x. \<not> P x \<and> \<not> R x)"
   apply (rule iffI)
+   apply (rule exI)
+   apply (rule notE)
+    apply assumption
+   apply (rule classical)
+
 oops
 
 (* 3 marks *)
