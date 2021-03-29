@@ -122,6 +122,14 @@ lemma ccontr:
 lemma
   "(\<not> (\<forall>x. P x \<or> R x)) = (\<exists>x. \<not> P x \<and> \<not> R x)"
   apply (rule iffI)
+   apply (rule exI)
+   apply (rule notE)
+    apply assumption
+   apply (rule allI)
+   apply (rule notE)
+  apply assumption
+   apply (rule ccontr)
+
 oops
 
 (* 3 marks *)
@@ -186,8 +194,8 @@ theorem overlaps_sym:
 (* 1 mark *)
 theorem in_sum_set_partof:
   "x \<in> \<alpha> \<and> \<Squnion> \<alpha> y  \<longrightarrow>  x \<sqsubseteq> y "
-proof (unfold sumregions_def)
-  show  " x \<in> \<alpha> \<and> (\<forall>ya\<in>\<alpha>. ya \<sqsubseteq> y) \<and> (\<forall>ya. ya \<sqsubseteq> y \<longrightarrow>(\<exists>z\<in>\<alpha>. ya \<frown> z)) \<longrightarrow>x \<sqsubseteq> y"
+proof -
+  show  "x \<in> \<alpha> \<and> \<Squnion> \<alpha> y  \<longrightarrow>  x \<sqsubseteq> y "
     using sumregions_def by simp
 qed
 
@@ -357,14 +365,15 @@ qed
 (* 2 marks *)
 theorem sum_all_with_parts_overlapping_self:
   "\<Squnion> {z. \<forall>r. r \<sqsubseteq> z \<longrightarrow> r \<frown> x} x"
-proof -
+  sorry
+(*proof -
   have one: "\<forall>r. r \<sqsubseteq> x \<longrightarrow> r \<frown> x"
     using A1 overlaps_def overlaps_refl by blast
   have two:  "\<Squnion> {x} x" using sum_one_is_self by blast
   have "x \<in> {z. \<forall>r. r \<sqsubseteq> z \<longrightarrow> r \<frown> x}" using one by simp
   then show "\<Squnion> {z. \<forall>r. r \<sqsubseteq> z \<longrightarrow> r \<frown> x} x" using two
 
-  sorry
+  sorry*)
 
 
 (* 4 marks *)
